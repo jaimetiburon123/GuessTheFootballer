@@ -35,13 +35,23 @@
           id="guess-input"
           type="text"
           placeholder="Type a footballer's name..."
+          role="combobox"
+          aria-controls="suggestions"
+          aria-expanded="false"
         >
-        <ul class="suggestions" id="suggestions" hidden></ul>
+        <ul class="suggestions" id="suggestions" role="listbox" hidden></ul>
       </div>
       <button class="btn btn-primary" id="guess-button" type="submit">Guess</button>
     </form>
 
     <p class="message" id="message" aria-live="polite"></p>
+
+    <section class="end-panel" id="end-panel" aria-live="polite" hidden>
+      <h2 class="end-title" id="end-title"></h2>
+      <p class="end-text" id="end-text"></p>
+      <dl class="answer-card" id="answer-card"></dl>
+      <button class="btn btn-primary" id="play-again-button" type="button">Play again</button>
+    </section>
 
     <section class="board-wrapper" aria-label="Guesses board">
       <div class="board">
