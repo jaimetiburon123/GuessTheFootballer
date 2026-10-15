@@ -75,6 +75,26 @@
       <button class="btn btn-primary btn-large" id="start-button" type="button">Start game</button>
     </section>
 
+    <!-- Saved statistics -->
+    <section class="stats" aria-label="Your statistics">
+      <div class="stat">
+        <span class="stat-value" id="stat-played">0</span>
+        <span class="stat-label">Played</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-win-rate">0%</span>
+        <span class="stat-label">Win rate</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-streak">0</span>
+        <span class="stat-label">Current streak</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-best-streak">0</span>
+        <span class="stat-label">Best streak</span>
+      </div>
+    </section>
+
     <!-- Game screen -->
     <div class="game-area" id="game-area" hidden>
       <section class="game-status" aria-label="Game status">
@@ -145,6 +165,8 @@
       </section>
     </div>
   </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <footer class="site-footer">
     <p>Made with plain HTML, CSS and JavaScript · No frameworks, no libraries</p>

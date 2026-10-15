@@ -26,6 +26,25 @@ const POSITION_LINES = {
 const CLOSE_RANGE = 2;
 const MAX_SUGGESTIONS = 8;
 
+// Delay between each cell of a new row when it flips in (ms)
+const CELL_FLIP_DELAY = 90;
+const TOAST_DURATION = 2500;
+
+// Typing this word anywhere outside the input toggles dark mode
+const SECRET_WORD = "dark";
+
+const STORAGE_KEYS = {
+  STATS: "guess-the-footballer-stats",
+  THEME: "guess-the-footballer-theme",
+};
+
+const EMPTY_STATS = {
+  played: 0,
+  wins: 0,
+  currentStreak: 0,
+  bestStreak: 0,
+};
+
 // Every difficulty is described here, so the game logic has no special cases
 const DIFFICULTIES = {
   easy: {
@@ -93,6 +112,11 @@ const endText = document.querySelector("#end-text");
 const answerCard = document.querySelector("#answer-card");
 const playAgainButton = document.querySelector("#play-again-button");
 const changeSettingsButton = document.querySelector("#change-settings-button");
+const statPlayedElement = document.querySelector("#stat-played");
+const statWinRateElement = document.querySelector("#stat-win-rate");
+const statStreakElement = document.querySelector("#stat-streak");
+const statBestStreakElement = document.querySelector("#stat-best-streak");
+const toastElement = document.querySelector("#toast");
 
 // =========================================
 // Game state
@@ -106,6 +130,9 @@ let guessedPlayers = new Set();
 let gameOver = false;
 let currentSuggestions = [];
 let activeSuggestionIndex = -1;
+let stats = { ...EMPTY_STATS };
+let typedKeys = "";
+let toastTimeoutId = null;
 
 // =========================================
 // Comparison functions
@@ -213,6 +240,94 @@ function setInputEnabled(isEnabled) {
   guessButton.disabled = !isEnabled;
 }
 
+function showToast(text) {
+  toastElement.textContent = text;
+  toastElement.hidden = false;
+
+  clearTimeout(toastTimeoutId);
+  toastTimeoutId = setTimeout(() => {
+    toastElement.hidden = true;
+  }, TOAST_DURATION);
+}
+
+// =========================================
+// Local storage (wrapped because it can fail in private mode)
+// =========================================
+function loadFromStorage(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveToStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    // Storage not available: the game still works, it just won't remember
+  }
+}
+
+// =========================================
+// Statistics
+// =========================================
+function renderStats() {
+  const winRate = stats.played === 0 ? 0 : Math.round((stats.wins / stats.played) * 100);
+
+  statPlayedElement.textContent = stats.played;
+  statWinRateElement.textContent = `${winRate}%`;
+  statStreakElement.textContent = stats.currentStreak;
+  statBestStreakElement.textContent = stats.bestStreak;
+}
+
+function recordGameResult(hasWon) {
+  stats.played++;
+  if (hasWon) {
+    stats.wins++;
+    stats.currentStreak++;
+    stats.bestStreak = Math.max(stats.bestStreak, stats.currentStreak);
+  } else {
+    stats.currentStreak = 0;
+  }
+
+  saveToStorage(STORAGE_KEYS.STATS, stats);
+  renderStats();
+}
+
+function loadStats() {
+  stats = { ...EMPTY_STATS, ...loadFromStorage(STORAGE_KEYS.STATS) };
+  renderStats();
+}
+
+// =========================================
+// Dark mode (secret word)
+// =========================================
+function setDarkMode(isDark) {
+  document.body.classList.toggle("dark", isDark);
+  saveToStorage(STORAGE_KEYS.THEME, isDark ? "dark" : "light");
+}
+
+function loadTheme() {
+  setDarkMode(loadFromStorage(STORAGE_KEYS.THEME) === "dark");
+}
+
+function handleSecretKey(event) {
+  // Ignore typing inside text fields, otherwise player names could trigger it
+  if (event.target.matches("input[type='text']") || event.key.length !== 1) {
+    return;
+  }
+
+  typedKeys = (typedKeys + event.key.toLowerCase()).slice(-SECRET_WORD.length);
+
+  if (typedKeys === SECRET_WORD) {
+    const isDark = !document.body.classList.contains("dark");
+    setDarkMode(isDark);
+    showToast(isDark ? "🌙 Dark mode on" : "☀️ Dark mode off");
+    typedKeys = "";
+  }
+}
+
 // =========================================
 // Board rendering
 // =========================================
@@ -250,10 +365,18 @@ function renderGuessRow(guessedPlayer) {
   const row = document.createElement("div");
   row.classList.add("board-row");
 
-  row.append(createCell(guessedPlayer.name, "cell-player"));
-  visibleColumns.forEach((column) => {
-    row.append(createAttributeCell(column, guessedPlayer));
+  const cells = [
+    createCell(guessedPlayer.name, "cell-player"),
+    ...visibleColumns.map((column) => createAttributeCell(column, guessedPlayer)),
+  ];
+
+  // Each cell flips in a little after the previous one
+  cells.forEach((cell, index) => {
+    cell.classList.add("cell-reveal");
+    cell.style.setProperty("--reveal-delay", `${index * CELL_FLIP_DELAY}ms`);
   });
+
+  row.append(...cells);
 
   boardEmpty.hidden = true;
   // Newest guess goes on top
@@ -387,6 +510,7 @@ function renderAnswerCard() {
 
 function endGame(hasWon) {
   gameOver = true;
+  recordGameResult(hasWon);
   setInputEnabled(false);
   hideSuggestions();
   showMessage("");
@@ -515,3 +639,7 @@ guessInput.addEventListener("blur", hideSuggestions);
 suggestionsList.addEventListener("mousedown", handleSuggestionMousedown);
 playAgainButton.addEventListener("click", startGame);
 changeSettingsButton.addEventListener("click", showSetupScreen);
+document.addEventListener("keydown", handleSecretKey);
+
+loadTheme();
+loadStats();

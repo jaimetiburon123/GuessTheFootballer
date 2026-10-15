@@ -7,20 +7,14 @@ Guess the mystery footballer: after every guess, the board shows which attribute
 
 No installation needed. Open `index.html` in any modern browser.
 
-## Project structure
+## How to play
 
-```
-GuessTheFootballer/
-├── index.html        # Page structure
-├── css/
-│   └── style.css     # Styles and colour tokens (light/dark ready)
-├── js/
-│   ├── players.js    # Player database (150 legends + 150 current players)
-│   └── main.js       # Game logic and DOM handling
-└── README.md
-```
+1. Choose a **difficulty** and a **player pool**, then press **Start game**.
+2. Type a footballer's name. Suggestions appear as you type (use ↑ ↓ and Enter, or click).
+3. Each guess adds a row to the board comparing your player with the mystery player.
+4. Use the clues to find the mystery player before you run out of guesses.
 
-## Attributes compared
+### Attributes compared
 
 | Column   | Feedback |
 |----------|----------|
@@ -33,18 +27,66 @@ GuessTheFootballer/
 | Foot     | 🟩 / 🟥 |
 | Status   | 🟩 both active or both retired · 🟥 different |
 
+The arrow shows whether the mystery player's value is **higher (↑)** or **lower (↓)**.
+
+### Difficulty levels
+
+| Level  | Guesses | Hints |
+|--------|---------|-------|
+| Easy   | 10 | All columns, 🟨 partial matches and arrows |
+| Normal | 8  | All columns and arrows, no 🟨 partial matches |
+| Hard   | 6  | Only Nation, Position, Age and Status, no 🟨, no arrows |
+
+### Player pools
+
+- **Mixed** – all 300 players
+- **Legends only** – 150 retired players
+- **Current only** – 150 active players
+
+In the single-type pools the Status column is hidden, since it would always match.
+
 ### Data rules
 
 - **Legends (retired):** club = the club they are best known for, league = that club's league (modern names), age = age at retirement, number = iconic shirt number at that club.
 - **Current players:** club, league and number from the 2025-26 season; age as of October 2026.
 
+## Features
+
+- Autocomplete with keyboard navigation
+- Accent-insensitive search ("pele" finds "Pelé")
+- Three difficulty levels and three player pools
+- End-of-game panel revealing the mystery player
+- Flip animation when a new row appears (disabled if the system prefers reduced motion)
+- Statistics saved in the browser: games played, win rate, current and best streak
+- 🌙 **Secret dark mode** (bonus): type the word **`dark`** anywhere on the page (outside the text box) to toggle it. The choice is remembered.
+
+## Project structure
+
+```
+GuessTheFootballer/
+├── index.html        # Page structure (no inline JavaScript)
+├── css/
+│   └── style.css     # Styles, colour tokens, light/dark themes and animations
+├── js/
+│   ├── players.js    # Player database (150 legends + 150 current players)
+│   └── main.js       # Game logic, DOM handling and events
+└── README.md
+```
+
+## Technical notes
+
+- DOM handled by hand with `querySelector`, `createElement`, `textContent`, `classList` and `replaceChildren`.
+- All events registered with `addEventListener` (`submit`, `input`, `keydown`, `mousedown`, `click`, `blur`).
+- Difficulties, pools and board columns are defined as configuration objects, so the game logic has no special cases for each mode.
+- `localStorage` access is wrapped in `try/catch`, so the game still works in private browsing.
+
 ## Development phases
 
 1. **Project scaffold and layout** – file structure, static board, styles and player database.
 2. **Core game loop** – random mystery player, guess handling (click or Enter), attribute comparison and win detection.
-3. **Input experience and game flow** – autocomplete with keyboard navigation, duplicate-guess check, 8-guess limit, end-of-game panel and "Play again".
+3. **Input experience and game flow** – autocomplete with keyboard navigation, duplicate-guess check, guess limit, end-of-game panel and "Play again".
 4. **Difficulty levels and player pool modes** – setup screen with Easy / Normal / Hard and Mixed / Legends / Current.
-5. Polish, dark mode bonus and final documentation
+5. **Polish** – secret dark mode, flip animations, saved statistics and final documentation.
 
 ## AI declaration
 
