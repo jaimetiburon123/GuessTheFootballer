@@ -43,7 +43,7 @@ GuessTheFootballer/
 1. **Project scaffold and layout** – file structure, static board, styles and player database.
 2. **Core game loop** – random mystery player, guess handling (click or Enter), attribute comparison and win detection.
 3. **Input experience and game flow** – autocomplete with keyboard navigation, duplicate-guess check, 8-guess limit, end-of-game panel and "Play again".
-4. Difficulty levels and player pool modes
+4. **Difficulty levels and player pool modes** – setup screen with Easy / Normal / Hard and Mixed / Legends / Current.
 5. Polish, dark mode bonus and final documentation
 
 ## AI declaration

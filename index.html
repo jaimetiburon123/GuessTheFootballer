@@ -16,71 +16,134 @@
   </header>
 
   <main class="game">
-    <section class="game-status" aria-label="Game status">
-      <div class="status-item">
-        <span class="status-label">Guesses</span>
-        <span class="status-value" id="guess-count">0</span>
-      </div>
-      <div class="status-item">
-        <span class="status-label">Players in database</span>
-        <span class="status-value" id="player-count">0</span>
-      </div>
-    </section>
-
-    <form class="guess-form" id="guess-form" autocomplete="off">
-      <label class="visually-hidden" for="guess-input">Footballer name</label>
-      <div class="guess-input-wrapper">
-        <input
-          class="guess-input"
-          id="guess-input"
-          type="text"
-          placeholder="Type a footballer's name..."
-          role="combobox"
-          aria-controls="suggestions"
-          aria-expanded="false"
-        >
-        <ul class="suggestions" id="suggestions" role="listbox" hidden></ul>
-      </div>
-      <button class="btn btn-primary" id="guess-button" type="submit">Guess</button>
-    </form>
-
-    <p class="message" id="message" aria-live="polite"></p>
-
-    <section class="end-panel" id="end-panel" aria-live="polite" hidden>
-      <h2 class="end-title" id="end-title"></h2>
-      <p class="end-text" id="end-text"></p>
-      <dl class="answer-card" id="answer-card"></dl>
-      <button class="btn btn-primary" id="play-again-button" type="button">Play again</button>
-    </section>
-
-    <section class="board-wrapper" aria-label="Guesses board">
-      <div class="board">
-        <div class="board-row board-header">
-          <span class="cell cell-head">Player</span>
-          <span class="cell cell-head">Nation</span>
-          <span class="cell cell-head">League</span>
-          <span class="cell cell-head">Club</span>
-          <span class="cell cell-head">Position</span>
-          <span class="cell cell-head">Age</span>
-          <span class="cell cell-head">Number</span>
-          <span class="cell cell-head">Foot</span>
-          <span class="cell cell-head">Status</span>
+    <!-- Setup screen -->
+    <section class="setup" id="setup" aria-label="Game settings">
+      <fieldset class="option-group">
+        <legend class="option-title">Difficulty</legend>
+        <div class="option-list">
+          <label class="option">
+            <input type="radio" name="difficulty" value="easy">
+            <span class="option-box">
+              <strong>Easy</strong>
+              <small>10 guesses · all hints</small>
+            </span>
+          </label>
+          <label class="option">
+            <input type="radio" name="difficulty" value="normal" checked>
+            <span class="option-box">
+              <strong>Normal</strong>
+              <small>8 guesses · no 🟨 hints</small>
+            </span>
+          </label>
+          <label class="option">
+            <input type="radio" name="difficulty" value="hard">
+            <span class="option-box">
+              <strong>Hard</strong>
+              <small>6 guesses · 4 columns · no arrows</small>
+            </span>
+          </label>
         </div>
-        <div class="board-rows" id="board-rows">
-          <p class="board-empty" id="board-empty">Your guesses will appear here.</p>
+      </fieldset>
+
+      <fieldset class="option-group">
+        <legend class="option-title">Player pool</legend>
+        <div class="option-list">
+          <label class="option">
+            <input type="radio" name="pool" value="mixed" checked>
+            <span class="option-box">
+              <strong>Mixed</strong>
+              <small>Legends and current players</small>
+            </span>
+          </label>
+          <label class="option">
+            <input type="radio" name="pool" value="legends">
+            <span class="option-box">
+              <strong>Legends only</strong>
+              <small>Retired players</small>
+            </span>
+          </label>
+          <label class="option">
+            <input type="radio" name="pool" value="current">
+            <span class="option-box">
+              <strong>Current only</strong>
+              <small>Active players</small>
+            </span>
+          </label>
         </div>
-      </div>
+      </fieldset>
+
+      <button class="btn btn-primary btn-large" id="start-button" type="button">Start game</button>
     </section>
 
-    <section class="legend" aria-label="Colour legend">
-      <h2 class="legend-title">How to read the board</h2>
-      <ul class="legend-list">
-        <li class="legend-item"><span class="swatch swatch-correct"></span>Exact match</li>
-        <li class="legend-item"><span class="swatch swatch-partial"></span>Close (same continent, same line or within 2)</li>
-        <li class="legend-item"><span class="swatch swatch-wrong"></span>No match</li>
-        <li class="legend-item"><span class="legend-arrow">↑ ↓</span>Mystery player's value is higher / lower</li>
-      </ul>
-    </section>
+    <!-- Game screen -->
+    <div class="game-area" id="game-area" hidden>
+      <section class="game-status" aria-label="Game status">
+        <div class="status-item">
+          <span class="status-label">Guesses</span>
+          <span class="status-value" id="guess-count">0</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Difficulty</span>
+          <span class="status-value" id="difficulty-label">-</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Pool</span>
+          <span class="status-value" id="pool-label">-</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Players</span>
+          <span class="status-value" id="player-count">0</span>
+        </div>
+      </section>
+
+      <form class="guess-form" id="guess-form" autocomplete="off">
+        <label class="visually-hidden" for="guess-input">Footballer name</label>
+        <div class="guess-input-wrapper">
+          <input
+            class="guess-input"
+            id="guess-input"
+            type="text"
+            placeholder="Type a footballer's name..."
+            role="combobox"
+            aria-controls="suggestions"
+            aria-expanded="false"
+          >
+          <ul class="suggestions" id="suggestions" role="listbox" hidden></ul>
+        </div>
+        <button class="btn btn-primary" id="guess-button" type="submit">Guess</button>
+      </form>
+
+      <p class="message" id="message" aria-live="polite"></p>
+
+      <section class="end-panel" id="end-panel" aria-live="polite" hidden>
+        <h2 class="end-title" id="end-title"></h2>
+        <p class="end-text" id="end-text"></p>
+        <dl class="answer-card" id="answer-card"></dl>
+        <div class="end-actions">
+          <button class="btn btn-primary" id="play-again-button" type="button">Play again</button>
+          <button class="btn btn-secondary" id="change-settings-button" type="button">Change settings</button>
+        </div>
+      </section>
+
+      <section class="board-wrapper" aria-label="Guesses board">
+        <div class="board">
+          <div class="board-row board-header" id="board-header"></div>
+          <div class="board-rows" id="board-rows">
+            <p class="board-empty" id="board-empty">Your guesses will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="legend" aria-label="Colour legend">
+        <h2 class="legend-title">How to read the board</h2>
+        <ul class="legend-list">
+          <li class="legend-item"><span class="swatch swatch-correct"></span>Exact match</li>
+          <li class="legend-item" id="legend-partial"><span class="swatch swatch-partial"></span>Close (same continent, same line or within 2)</li>
+          <li class="legend-item"><span class="swatch swatch-wrong"></span>No match</li>
+          <li class="legend-item" id="legend-arrows"><span class="legend-arrow">↑ ↓</span>Mystery player's value is higher / lower</li>
+        </ul>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer">

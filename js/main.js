@@ -24,30 +24,83 @@ const POSITION_LINES = {
 
 // Max difference for a numeric value to count as "close"
 const CLOSE_RANGE = 2;
-const MAX_GUESSES = 8;
 const MAX_SUGGESTIONS = 8;
+
+// Every difficulty is described here, so the game logic has no special cases
+const DIFFICULTIES = {
+  easy: {
+    label: "Easy",
+    maxGuesses: 10,
+    showPartial: true,
+    showArrows: true,
+    hiddenColumns: [],
+  },
+  normal: {
+    label: "Normal",
+    maxGuesses: 8,
+    showPartial: false,
+    showArrows: true,
+    hiddenColumns: [],
+  },
+  hard: {
+    label: "Hard",
+    maxGuesses: 6,
+    showPartial: false,
+    showArrows: false,
+    hiddenColumns: ["league", "club", "number", "foot"],
+  },
+};
+
+const POOLS = {
+  mixed: {
+    label: "Mixed",
+    filter: () => true,
+  },
+  legends: {
+    label: "Legends",
+    filter: (player) => !player.active,
+  },
+  current: {
+    label: "Current",
+    filter: (player) => player.active,
+  },
+};
 
 // =========================================
 // DOM references
 // =========================================
+const setupSection = document.querySelector("#setup");
+const startButton = document.querySelector("#start-button");
+const gameArea = document.querySelector("#game-area");
 const guessForm = document.querySelector("#guess-form");
 const guessInput = document.querySelector("#guess-input");
 const guessButton = document.querySelector("#guess-button");
 const suggestionsList = document.querySelector("#suggestions");
 const messageElement = document.querySelector("#message");
+const boardElement = document.querySelector(".board");
+const boardHeader = document.querySelector("#board-header");
 const boardRows = document.querySelector("#board-rows");
 const boardEmpty = document.querySelector("#board-empty");
 const guessCountElement = document.querySelector("#guess-count");
+const difficultyLabelElement = document.querySelector("#difficulty-label");
+const poolLabelElement = document.querySelector("#pool-label");
 const playerCountElement = document.querySelector("#player-count");
+const legendPartial = document.querySelector("#legend-partial");
+const legendArrows = document.querySelector("#legend-arrows");
 const endPanel = document.querySelector("#end-panel");
 const endTitle = document.querySelector("#end-title");
 const endText = document.querySelector("#end-text");
 const answerCard = document.querySelector("#answer-card");
 const playAgainButton = document.querySelector("#play-again-button");
+const changeSettingsButton = document.querySelector("#change-settings-button");
 
 // =========================================
 // Game state
 // =========================================
+let difficulty = DIFFICULTIES.normal;
+let pool = POOLS.mixed;
+let poolPlayers = [];
+let visibleColumns = [];
 let targetPlayer = null;
 let guessedPlayers = new Set();
 let gameOver = false;
@@ -100,6 +153,20 @@ const COLUMNS = [
   { key: "active", label: "Status", compare: compareExact, format: (isActive) => (isActive ? "Active" : "Retired") },
 ];
 
+// Applies the difficulty rules on top of the raw comparison
+function compareWithDifficulty(column, guessedPlayer) {
+  let { result, arrow } = column.compare(guessedPlayer[column.key], targetPlayer[column.key]);
+
+  if (result === RESULT.PARTIAL && !difficulty.showPartial) {
+    result = RESULT.WRONG;
+  }
+  if (!difficulty.showArrows) {
+    arrow = "";
+  }
+
+  return { result, arrow };
+}
+
 // =========================================
 // Helpers
 // =========================================
@@ -118,14 +185,18 @@ function findPlayerByName(name) {
   return PLAYERS.find((player) => normalizeText(player.name) === searchName);
 }
 
-function getRandomPlayer() {
-  const randomIndex = Math.floor(Math.random() * PLAYERS.length);
-  return PLAYERS[randomIndex];
+function getRandomPlayer(players) {
+  const randomIndex = Math.floor(Math.random() * players.length);
+  return players[randomIndex];
 }
 
 function getDisplayValue(column, player) {
   const value = player[column.key];
   return column.format ? column.format(value) : `${value}`;
+}
+
+function getSelectedOption(groupName) {
+  return document.querySelector(`input[name="${groupName}"]:checked`).value;
 }
 
 function showMessage(text, type = "info") {
@@ -134,7 +205,7 @@ function showMessage(text, type = "info") {
 }
 
 function updateGuessCount() {
-  guessCountElement.textContent = `${guessedPlayers.size} / ${MAX_GUESSES}`;
+  guessCountElement.textContent = `${guessedPlayers.size} / ${difficulty.maxGuesses}`;
 }
 
 function setInputEnabled(isEnabled) {
@@ -153,7 +224,7 @@ function createCell(text, extraClass) {
 }
 
 function createAttributeCell(column, guessedPlayer) {
-  const { result, arrow } = column.compare(guessedPlayer[column.key], targetPlayer[column.key]);
+  const { result, arrow } = compareWithDifficulty(column, guessedPlayer);
   const cell = createCell(getDisplayValue(column, guessedPlayer), `cell-${result}`);
 
   if (arrow) {
@@ -166,12 +237,21 @@ function createAttributeCell(column, guessedPlayer) {
   return cell;
 }
 
+function renderBoardHeader() {
+  const headerCells = ["Player", ...visibleColumns.map((column) => column.label)]
+    .map((label) => createCell(label, "cell-head"));
+  boardHeader.replaceChildren(...headerCells);
+
+  // Adapt the grid to the number of visible columns
+  boardElement.style.setProperty("--board-columns", `1.6fr repeat(${visibleColumns.length}, 1fr)`);
+}
+
 function renderGuessRow(guessedPlayer) {
   const row = document.createElement("div");
   row.classList.add("board-row");
 
   row.append(createCell(guessedPlayer.name, "cell-player"));
-  COLUMNS.forEach((column) => {
+  visibleColumns.forEach((column) => {
     row.append(createAttributeCell(column, guessedPlayer));
   });
 
@@ -194,7 +274,7 @@ function getMatchingPlayers(query) {
     return [];
   }
 
-  return PLAYERS
+  return poolPlayers
     .filter((player) => !guessedPlayers.has(player))
     .filter((player) => normalizeText(player.name).includes(searchText))
     .slice(0, MAX_SUGGESTIONS);
@@ -318,7 +398,7 @@ function endGame(hasWon) {
   endPanel.classList.toggle("end-panel-lose", !hasWon);
   endTitle.textContent = hasWon ? "🎉 You got it!" : "❌ Out of guesses";
   endText.textContent = hasWon
-    ? `The mystery player was ${targetPlayer.name}. You found them in ${guessesText}.`
+    ? `The mystery player was ${targetPlayer.name}. You found them in ${guessesText} on ${difficulty.label}.`
     : `The mystery player was ${targetPlayer.name}.`;
 
   renderAnswerCard();
@@ -347,6 +427,11 @@ function handleGuess(event) {
     return;
   }
 
+  if (!pool.filter(guessedPlayer)) {
+    showMessage(`${guessedPlayer.name} is not in the "${pool.label}" pool.`, "error");
+    return;
+  }
+
   if (guessedPlayers.has(guessedPlayer)) {
     showMessage(`You already guessed ${guessedPlayer.name}.`, "error");
     return;
@@ -361,16 +446,37 @@ function handleGuess(event) {
 
   if (guessedPlayer === targetPlayer) {
     endGame(true);
-  } else if (guessedPlayers.size >= MAX_GUESSES) {
+  } else if (guessedPlayers.size >= difficulty.maxGuesses) {
     endGame(false);
   } else {
-    const guessesLeft = MAX_GUESSES - guessedPlayers.size;
+    const guessesLeft = difficulty.maxGuesses - guessedPlayers.size;
     showMessage(`${guessesLeft} ${guessesLeft === 1 ? "guess" : "guesses"} left.`);
   }
 }
 
+// Reads the setup screen and prepares everything that depends on it
+function applySettings() {
+  difficulty = DIFFICULTIES[getSelectedOption("difficulty")];
+  pool = POOLS[getSelectedOption("pool")];
+  poolPlayers = PLAYERS.filter(pool.filter);
+
+  // The "Status" column gives no information when the pool has only one type of player
+  const hiddenKeys = pool === POOLS.mixed
+    ? difficulty.hiddenColumns
+    : [...difficulty.hiddenColumns, "active"];
+  visibleColumns = COLUMNS.filter((column) => !hiddenKeys.includes(column.key));
+
+  difficultyLabelElement.textContent = difficulty.label;
+  poolLabelElement.textContent = pool.label;
+  playerCountElement.textContent = poolPlayers.length;
+  legendPartial.hidden = !difficulty.showPartial;
+  legendArrows.hidden = !difficulty.showArrows;
+
+  renderBoardHeader();
+}
+
 function startGame() {
-  targetPlayer = getRandomPlayer();
+  targetPlayer = getRandomPlayer(poolPlayers);
   guessedPlayers = new Set();
   gameOver = false;
 
@@ -384,9 +490,23 @@ function startGame() {
   guessInput.focus();
 }
 
+function showSetupScreen() {
+  gameArea.hidden = true;
+  setupSection.hidden = false;
+  startButton.focus();
+}
+
+function handleStartClick() {
+  applySettings();
+  setupSection.hidden = true;
+  gameArea.hidden = false;
+  startGame();
+}
+
 // =========================================
 // Events
 // =========================================
+startButton.addEventListener("click", handleStartClick);
 // "submit" fires both when the button is clicked and when Enter is pressed
 guessForm.addEventListener("submit", handleGuess);
 guessInput.addEventListener("input", handleInput);
@@ -394,6 +514,4 @@ guessInput.addEventListener("keydown", handleInputKeydown);
 guessInput.addEventListener("blur", hideSuggestions);
 suggestionsList.addEventListener("mousedown", handleSuggestionMousedown);
 playAgainButton.addEventListener("click", startGame);
-
-playerCountElement.textContent = PLAYERS.length;
-startGame();
+changeSettingsButton.addEventListener("click", showSetupScreen);
