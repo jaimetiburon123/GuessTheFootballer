@@ -1,0 +1,385 @@
+/* =========================================
+   Design tokens
+   ========================================= */
+:root {
+  --color-bg: #f2f5f0;
+  --color-surface: #ffffff;
+  --color-surface-alt: #e7ece4;
+  --color-text: #1b2a1f;
+  --color-text-muted: #5b6b5f;
+  --color-border: #cfd8cc;
+  --color-primary: #1f7a3f;
+  --color-primary-hover: #17602f;
+  --color-primary-text: #ffffff;
+
+  --color-correct: #2e9e54;
+  --color-partial: #e0a92a;
+  --color-wrong: #c94a4a;
+  --color-cell-text: #ffffff;
+
+  --radius: 10px;
+  --radius-small: 6px;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --font-main: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --board-columns: 1.6fr repeat(8, 1fr);
+  --transition: 0.2s ease;
+}
+
+/* Dark theme (activated later by a secret key) */
+body.dark {
+  --color-bg: #0f1712;
+  --color-surface: #18231b;
+  --color-surface-alt: #213025;
+  --color-text: #e6efe8;
+  --color-text-muted: #9fb2a4;
+  --color-border: #2f4134;
+  --color-primary: #3fbf6b;
+  --color-primary-hover: #57d482;
+  --color-primary-text: #0f1712;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* =========================================
+   Base
+   ========================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  line-height: 1.5;
+  transition: background-color var(--transition), color var(--transition);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* =========================================
+   Header & footer
+   ========================================= */
+.site-header {
+  padding: 2rem 1rem 1rem;
+  text-align: center;
+}
+
+.site-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  color: var(--color-primary);
+}
+
+.site-tagline {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.site-footer {
+  margin-top: auto;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+/* =========================================
+   Game layout
+   ========================================= */
+.game {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.game-status {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.status-item {
+  min-width: 140px;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.status-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.status-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* =========================================
+   Guess form
+   ========================================= */
+.guess-form {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.guess-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.guess-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.guess-input:focus {
+  border-color: var(--color-primary);
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.suggestion {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.suggestion:hover,
+.suggestion.active {
+  background-color: var(--color-surface-alt);
+}
+
+.btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.message {
+  min-height: 1.5rem;
+  margin: 0;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* =========================================
+   Board
+   ========================================= */
+.board-wrapper {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.board {
+  min-width: 880px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: var(--board-columns);
+  gap: 0.5rem;
+}
+
+.board-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cell {
+  min-height: 64px;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-small);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  word-break: break-word;
+}
+
+.cell-head {
+  min-height: auto;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-alt);
+}
+
+.cell-player {
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.cell-correct,
+.cell-partial,
+.cell-wrong {
+  color: var(--color-cell-text);
+  border-color: transparent;
+}
+
+.cell-correct {
+  background-color: var(--color-correct);
+}
+
+.cell-partial {
+  background-color: var(--color-partial);
+}
+
+.cell-wrong {
+  background-color: var(--color-wrong);
+}
+
+.board-empty {
+  margin: 0;
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+}
+
+/* =========================================
+   Legend
+   ========================================= */
+.legend {
+  padding: 1rem 1.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.legend-title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.legend-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.swatch-correct {
+  background-color: var(--color-correct);
+}
+
+.swatch-partial {
+  background-color: var(--color-partial);
+}
+
+.swatch-wrong {
+  background-color: var(--color-wrong);
+}
+
+.legend-arrow {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+@media (max-width: 600px) {
+  .guess-form {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

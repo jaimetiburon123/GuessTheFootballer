@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Guess the mystery footballer in as few attempts as possible.">
+  <title>Guess the Footballer</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/players.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">⚽ Guess the Footballer</h1>
+    <p class="site-tagline">Find the mystery player. Every guess reveals what they have in common.</p>
+  </header>
+
+  <main class="game">
+    <section class="game-status" aria-label="Game status">
+      <div class="status-item">
+        <span class="status-label">Guesses</span>
+        <span class="status-value" id="guess-count">0</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Players in database</span>
+        <span class="status-value" id="player-count">0</span>
+      </div>
+    </section>
+
+    <form class="guess-form" id="guess-form" autocomplete="off">
+      <label class="visually-hidden" for="guess-input">Footballer name</label>
+      <div class="guess-input-wrapper">
+        <input
+          class="guess-input"
+          id="guess-input"
+          type="text"
+          placeholder="Type a footballer's name..."
+        >
+        <ul class="suggestions" id="suggestions" hidden></ul>
+      </div>
+      <button class="btn btn-primary" id="guess-button" type="submit">Guess</button>
+    </form>
+
+    <p class="message" id="message" aria-live="polite"></p>
+
+    <section class="board-wrapper" aria-label="Guesses board">
+      <div class="board">
+        <div class="board-row board-header">
+          <span class="cell cell-head">Player</span>
+          <span class="cell cell-head">Nation</span>
+          <span class="cell cell-head">League</span>
+          <span class="cell cell-head">Club</span>
+          <span class="cell cell-head">Position</span>
+          <span class="cell cell-head">Age</span>
+          <span class="cell cell-head">Number</span>
+          <span class="cell cell-head">Foot</span>
+          <span class="cell cell-head">Status</span>
+        </div>
+        <div class="board-rows" id="board-rows">
+          <p class="board-empty" id="board-empty">Your guesses will appear here.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="legend" aria-label="Colour legend">
+      <h2 class="legend-title">How to read the board</h2>
+      <ul class="legend-list">
+        <li class="legend-item"><span class="swatch swatch-correct"></span>Exact match</li>
+        <li class="legend-item"><span class="swatch swatch-partial"></span>Close (same continent, same line or within 2)</li>
+        <li class="legend-item"><span class="swatch swatch-wrong"></span>No match</li>
+        <li class="legend-item"><span class="legend-arrow">↑ ↓</span>Mystery player's value is higher / lower</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Made with plain HTML, CSS and JavaScript · No frameworks, no libraries</p>
+  </footer>
+</body>
+</html>
