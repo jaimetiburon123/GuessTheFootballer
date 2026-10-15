@@ -41,7 +41,7 @@ GuessTheFootballer/
 ## Development phases
 
 1. **Project scaffold and layout** – file structure, static board, styles and player database.
-2. Core game loop – *coming next*
+2. **Core game loop** – random mystery player, guess handling (click or Enter), attribute comparison and win detection.
 3. Input experience and game flow
 4. Difficulty levels and player pool modes
 5. Polish, dark mode bonus and final documentation

@@ -223,11 +223,25 @@ body {
   background-color: var(--color-primary-hover);
 }
 
+.btn:disabled,
+.guess-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .message {
   min-height: 1.5rem;
   margin: 0;
   text-align: center;
   font-weight: 600;
+}
+
+.message-success {
+  color: var(--color-correct);
+}
+
+.message-error {
+  color: var(--color-wrong);
 }
 
 /* =========================================
@@ -305,6 +319,11 @@ body {
 
 .cell-wrong {
   background-color: var(--color-wrong);
+}
+
+.cell-arrow {
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
 .board-empty {
