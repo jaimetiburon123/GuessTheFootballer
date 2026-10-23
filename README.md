@@ -1,93 +1,30 @@
-# ⚽ Guess the Footballer
+# Guess the Footballer
 
-A browser mini-game built with **plain HTML, CSS and JavaScript** (no frameworks, no libraries).
-Guess the mystery footballer: after every guess, the board shows which attributes your player shares with the mystery player.
-
-## How to run
-
-No installation needed. Open `index.html` in any modern browser.
+Misión M1 · El Despertar del DOM — Web Development I.
 
 ## How to play
 
-1. Choose a **difficulty** and a **player pool**, then press **Start game**.
+1. Choose a difficulty and a player pool, then press "Start game".
 2. Type a footballer's name. Suggestions appear as you type (use ↑ ↓ and Enter, or click).
 3. Each guess adds a row to the board comparing your player with the mystery player.
 4. Use the clues to find the mystery player before you run out of guesses.
 
-### Attributes compared
+## Use of AI
+I used claude code as a partner to code the game.
+Real Prompt Examples:
+- "Before doing any code (do not code anything for now) how would you
+  recommend splitting up this task of creating this game in 5 different
+  phases"
+- "Make it be a mixture of 150 football legends and current top 150
+  players. Also a column of the attributes to compare should be added to
+  say if the player is active or non active."
 
-| Column   | Feedback |
-|----------|----------|
-| Nation   | 🟩 same country · 🟨 same continent · 🟥 different |
-| League   | 🟩 / 🟥 |
-| Club     | 🟩 / 🟥 |
-| Position | 🟩 same position · 🟨 same line (defence, midfield, attack) · 🟥 different |
-| Age      | 🟩 exact · ↑↓ arrow (🟨 if within 2 years) |
-| Number   | 🟩 exact · ↑↓ arrow (🟨 if within 2) |
-| Foot     | 🟩 / 🟥 |
-| Status   | 🟩 both active or both retired · 🟥 different |
+After completing all the changes I wanted to do for each step, I played the amount of games needed to check that all new features worked correctly and that all limit cases didnt give errors (repeating a player, wasting all guesses, etc) before commiting to github.
 
-The arrow shows whether the mystery player's value is **higher (↑)** or **lower (↓)**.
+Something that I had to write manually were the corrections to the player database since claude warned me information about recent transfers could be outdated.
 
-### Difficulty levels
+## Autopsy
+1. I decided to make the player database as a javascript file (players.js) instead of a Json. The alternative that I discarded was making a players.json file loaded with fetch() because fetch() doesn't work when you open index.html by double-clicking it (you would always need a local server). With a .js file, the game works just by opening it.
 
-| Level  | Guesses | Hints |
-|--------|---------|-------|
-| Easy   | 10 | All columns, 🟨 partial matches and arrows |
-| Normal | 8  | All columns and arrows, no 🟨 partial matches |
-| Hard   | 6  | Only Nation, Position, Age and Status, no 🟨, no arrows |
+2. Each difficulty (Easy, Normal, Hard) is defined in one object called DIFFICULTIES, with its corresponding number of guesses and which hints it shows. The alternative that I discarded was was writing "if" statements for each difficulty in every function that behaved differently because it would make editing after adding or changing a level much harder. This way I only change one object.
 
-### Player pools
-
-- **Mixed** – all 300 players
-- **Legends only** – 150 retired players
-- **Current only** – 150 active players
-
-In the single-type pools the Status column is hidden, since it would always match.
-
-### Data rules
-
-- **Legends (retired):** club = the club they are best known for, league = that club's league (modern names), age = age at retirement, number = iconic shirt number at that club.
-- **Current players:** club, league and number from the 2025-26 season; age as of October 2026.
-
-## Features
-
-- Autocomplete with keyboard navigation
-- Accent-insensitive search ("pele" finds "Pelé")
-- Three difficulty levels and three player pools
-- End-of-game panel revealing the mystery player
-- Flip animation when a new row appears (disabled if the system prefers reduced motion)
-- Statistics saved in the browser: games played, win rate, current and best streak
-- 🌙 **Secret dark mode** (bonus): type the word **`dark`** anywhere on the page (outside the text box) to toggle it. The choice is remembered.
-
-## Project structure
-
-```
-GuessTheFootballer/
-├── index.html        # Page structure (no inline JavaScript)
-├── css/
-│   └── style.css     # Styles, colour tokens, light/dark themes and animations
-├── js/
-│   ├── players.js    # Player database (150 legends + 150 current players)
-│   └── main.js       # Game logic, DOM handling and events
-└── README.md
-```
-
-## Technical notes
-
-- DOM handled by hand with `querySelector`, `createElement`, `textContent`, `classList` and `replaceChildren`.
-- All events registered with `addEventListener` (`submit`, `input`, `keydown`, `mousedown`, `click`, `blur`).
-- Difficulties, pools and board columns are defined as configuration objects, so the game logic has no special cases for each mode.
-- `localStorage` access is wrapped in `try/catch`, so the game still works in private browsing.
-
-## Development phases
-
-1. **Project scaffold and layout** – file structure, static board, styles and player database.
-2. **Core game loop** – random mystery player, guess handling (click or Enter), attribute comparison and win detection.
-3. **Input experience and game flow** – autocomplete with keyboard navigation, duplicate-guess check, guess limit, end-of-game panel and "Play again".
-4. **Difficulty levels and player pool modes** – setup screen with Easy / Normal / Hard and Mixed / Legends / Current.
-5. **Polish** – secret dark mode, flip animations, saved statistics and final documentation.
-
-## AI declaration
-
-This project was developed with the help of an AI assistant (Claude, by Anthropic). The AI generated code for each phase following my design decisions, and I reviewed, tested and committed every phase myself. The player database was generated by the AI and checked manually for errors.
