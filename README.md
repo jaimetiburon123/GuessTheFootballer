@@ -2,12 +2,18 @@
 
 Misión M1 · El Despertar del DOM — Web Development I.
 
+## How to run
+
+The game uses JavaScript modules, so it needs a local server: open the folder in VS Code and use Live Server, or play online at https://jaimetiburon123.github.io/GuessTheFootballer/.
+
 ## How to play
 
 1. Choose a difficulty and a player pool, then press "Start game".
 2. Type a footballer's name. Suggestions appear as you type (use ↑ ↓ and Enter, or click).
 3. Each guess adds a row to the board comparing your player with the mystery player.
 4. Use the clues to find the mystery player before you run out of guesses.
+
+Secret key: type the word "dark" anywhere outside the text box to toggle dark mode.
 
 ## Use of AI
 I used claude code as a partner to code the game.
@@ -24,7 +30,7 @@ After completing all the changes I wanted to do for each step, I played the amou
 Something that I had to write manually were the corrections to the player database since claude warned me information about recent transfers could be outdated.
 
 ## Autopsy
-1. I decided to make the player database as a javascript file (players.js) instead of a Json. The alternative that I discarded was making a players.json file loaded with fetch() because fetch() doesn't work when you open index.html by double-clicking it (you would always need a local server). With a .js file, the game works just by opening it.
+ 1. Suggestions in the autocomplete list are handled with one single listener on the list (event delegation) instead of adding a listener to every suggestion. The alternative I discarded was one listener per suggestion: the list is rebuilt on every key press, so the listeners would have to be added and removed again each time, which is slower and easy to get wrong.
 
 2. Each difficulty (Easy, Normal, Hard) is defined in one object called DIFFICULTIES, with its corresponding number of guesses and which hints it shows. The alternative that I discarded was was writing "if" statements for each difficulty in every function that behaved differently because it would make editing after adding or changing a level much harder. This way I only change one object.
 
