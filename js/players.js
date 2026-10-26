@@ -19,7 +19,7 @@
  * Positions: GK, CB, LB, RB, CDM, CM, CAM, LW, RW, ST
  */
 
-const PLAYERS = [
+export const PLAYERS = [
   // ==================== LEGENDS ====================
   { name: "Alan Shearer", nationality: "England", league: "Premier League", club: "Newcastle United", position: "ST", age: 35, number: 9, foot: "Right", active: false },
   { name: "Alessandro Del Piero", nationality: "Italy", league: "Serie A", club: "Juventus", position: "ST", age: 40, number: 10, foot: "Right", active: false },
@@ -329,7 +329,7 @@ const PLAYERS = [
  * Continent of every nationality in the database.
  * Used to give a "close" hint when two players are from the same continent.
  */
-const NATIONALITY_CONTINENTS = {
+export const NATIONALITY_CONTINENTS = {
   "Algeria": "Africa",
   "Argentina": "South America",
   "Belgium": "Europe",
